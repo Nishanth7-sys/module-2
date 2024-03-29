@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-//import "hardhat/console.sol";
-
 contract Assessment {
     address payable public owner;
     uint256 public balance;
@@ -56,5 +54,39 @@ contract Assessment {
 
         // emit the event
         emit Withdraw(_withdrawAmount);
+    }
+
+    function calculateBitcoinReturns(uint256 investmentAmount, uint256 initialPrice, uint256 investmentYear, uint256 currentYear, uint256 currentPrice) public pure returns (uint256 profit, uint256 annualizedReturn) {
+        uint256 yearsPassed = currentYear - investmentYear;
+        uint256 bitcoinPurchased = investmentAmount / initialPrice;
+        uint256 currentInvestmentValue = bitcoinPurchased * currentPrice;
+        uint256 investmentValueAtStartYear = bitcoinPurchased * initialPrice;
+        profit = currentInvestmentValue - investmentValueAtStartYear;
+        annualizedReturn = profit / yearsPassed;
+    }
+
+    function generateSecurityQuestion() public view returns (string memory) {
+        uint256 firstNumber = uint256(blockhash(block.number - 1)) % 10;
+        uint256 secondNumber = uint256(blockhash(block.number - 2)) % 10;
+        return string(abi.encodePacked("Please solve: ", toString(firstNumber), " + ", toString(secondNumber)));
+    }
+
+    function toString(uint256 _value) internal pure returns (string memory) {
+        if (_value == 0) {
+            return "0";
+        }
+        uint256 temp = _value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (_value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(_value % 10)));
+            _value /= 10;
+        }
+        return string(buffer);
     }
 }
